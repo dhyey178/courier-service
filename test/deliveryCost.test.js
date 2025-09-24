@@ -1,4 +1,8 @@
-const { calculateCost } = require('../src/index');
+const { 
+  calculateBaseCost, 
+  calculateDeliveryDetails 
+} = require('../src/index');
+
 describe('Delivery Cost Calculation', () => {
   test('should calculate the correct base cost for a package', () => {
     const baseCost = 100;
@@ -6,7 +10,7 @@ describe('Delivery Cost Calculation', () => {
     const distance = 50;
     const expectedCost = baseCost + (weight * 10) + (distance * 5);
 
-    const actualCost = calculateCost(baseCost, weight, distance);
+    const actualCost = calculateBaseCost(baseCost, weight, distance);
 
     expect(actualCost).toBe(expectedCost);
   });

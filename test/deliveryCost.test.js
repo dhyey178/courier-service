@@ -1,3 +1,4 @@
+const { calculateCost } = require('../src/index');
 describe('Delivery Cost Calculation', () => {
   test('should calculate the correct base cost for a package', () => {
     const baseCost = 100;

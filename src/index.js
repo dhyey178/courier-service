@@ -113,6 +113,7 @@ function processInput(lines) {
 
 module.exports = {
   calculateBaseCost,
+  validateOffer,
   calculateDeliveryDetails,
   processInput
 };

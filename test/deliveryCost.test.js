@@ -1,5 +1,6 @@
 const { 
-  calculateBaseCost, 
+  calculateBaseCost,
+  validateOffer,
   calculateDeliveryDetails 
 } = require('../src/index');
 
@@ -13,6 +14,34 @@ describe('Delivery Cost Calculation', () => {
     const actualCost = calculateBaseCost(baseCost, weight, distance);
 
     expect(actualCost).toBe(expectedCost);
+  });
+});
+
+describe('Offer Validation', () => {
+
+  test('should return 0.1 for OFR001 when criteria are exactly met', () => {
+    const details = { weight: 70, distance: 100, offerCode: 'OFR001' };
+    expect(validateOffer(details)).toBe(0.1);
+  });
+
+  test('should return 0 for OFR001 when weight is under limit', () => {
+    const details = { weight: 69, distance: 100, offerCode: 'OFR001' };
+    expect(validateOffer(details)).toBe(0);
+  });
+
+  test('should return 0.07 for OFR002 when criteria are met', () => {
+    const details = { weight: 100, distance: 100, offerCode: 'OFR002' };
+    expect(validateOffer(details)).toBe(0.07);
+  });
+
+  test('should return 0 for OFR002 when distance is under limit', () => {
+    const details = { weight: 100, distance: 49, offerCode: 'OFR002' };
+    expect(validateOffer(details)).toBe(0);
+  });
+
+  test('should return 0 for a non-existent offer code', () => {
+    const details = { weight: 100, distance: 100, offerCode: 'OFR999' };
+    expect(validateOffer(details)).toBe(0);
   });
 });
 
@@ -40,7 +69,7 @@ describe('Delivery Details Calculation', () => {
     expect(result.totalCost).toBe(expectedTotalCost);
   });
 
-  test('should throw an error for non-numeric weight or distance', () => {
+  test('should throw an error for non-numeric weight', () => {
     const packageDetails = {
       baseCost: 100,
       weight: 'invalid-weight',
@@ -53,7 +82,20 @@ describe('Delivery Details Calculation', () => {
     );
   });
 
-  test('should throw an error for non-positive weight or distance', () => {
+  test('should throw an error for non-numeric distance', () => {
+    const packageDetails = {
+      baseCost: 100,
+      weight: 70,
+      distance: 'invalid-distance',
+      offerCode: 'OFR001'
+    };
+
+    expect(() => calculateDeliveryDetails(packageDetails)).toThrow(
+      'Invalid input: Weight and distance must be positive numbers.'
+    );
+  });
+
+  test('should throw an error for non-positive weight', () => {
       const packageDetails = {
           baseCost: 100,
           weight: -5,
@@ -65,4 +107,17 @@ describe('Delivery Details Calculation', () => {
           'Invalid input: Weight and distance must be positive numbers.'
       );
   });
+  test('should throw an error for non-positive distance', () => {
+      const packageDetails = {
+          baseCost: 100,
+          weight: 40,
+          distance: 0,
+          offerCode: 'OFR001'
+      };
+
+      expect(() => calculateDeliveryDetails(packageDetails)).toThrow(
+          'Invalid input: Weight and distance must be positive numbers.'
+      );
+  });
+
 });

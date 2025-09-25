@@ -19,4 +19,20 @@ describe('End-to-End Input Processing', () => {
 
     expect(actualOutput).toEqual(expectedOutput);
   });
+
+  test('should return an empty array if the input array is empty/null/undefined/no input', () => {
+
+    let actualOutput = processInput([]);
+    expect(actualOutput).toEqual([]);
+
+    actualOutput = processInput(null);
+    expect(actualOutput).toEqual([]);
+
+    actualOutput = processInput(undefined);
+    expect(actualOutput).toEqual([]);
+
+    actualOutput = processInput();
+    expect(actualOutput).toEqual([]);
+
+  });
 });

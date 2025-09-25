@@ -74,7 +74,7 @@ function processInput(lines) {
     return [];
   }
 
-  const [baseCostStr, numPackagesStr] = lines[0].split(' ');
+  const [baseCostStr, numPackagesStr] = lines[0].trim().split(/\s+/);
   const baseCost = parseFloat(baseCostStr);
   const numPackages = parseInt(numPackagesStr, 10);
 
@@ -88,7 +88,7 @@ function processInput(lines) {
   for (let i = 1; i <= numPackages; i++) {
     const line = lines[i];
 
-    const [pkgId, weightStr, distanceStr, offerCode] = line.split(' ');
+    const [pkgId, weightStr, distanceStr, offerCode] = line.trim().split(/\s+/); 
 
     const weight = parseFloat(weightStr);
     const distance = parseFloat(distanceStr);

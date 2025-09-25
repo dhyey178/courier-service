@@ -60,7 +60,55 @@ function calculateDeliveryDetails(packageDetails) {
   return { discount, totalCost };
 }
 
+/**
+ * Parses input lines, calculates delivery costs for all packages, and formats the output.
+ * @param {string[]} lines - An array of input strings from the command line.
+ * @returns {string[]} An array of output strings in the format: "pkg_id discount total_cost"
+ */
+function processInput(lines) {
+  if (!lines || lines.length === 0) {
+    return [];
+  }
+
+  const [baseCostStr, numPackagesStr] = lines[0].split(' ');
+  const baseCost = parseFloat(baseCostStr);
+  const numPackages = parseInt(numPackagesStr, 10);
+
+  if (isNaN(baseCost) || isNaN(numPackages) || lines.length !== numPackages + 1) {
+    console.error("Invalid input format detected.");
+    return [];
+  }
+
+  const packageOutput = [];
+
+  for (let i = 1; i <= numPackages; i++) {
+    const line = lines[i];
+
+    const [pkgId, weightStr, distanceStr, offerCode] = line.split(' ');
+
+    const weight = parseFloat(weightStr);
+    const distance = parseFloat(distanceStr);
+
+    const packageDetails = {
+      pkgId,
+      baseCost,
+      weight,
+      distance,
+      offerCode
+    };
+
+    const { discount, totalCost } = calculateDeliveryDetails(packageDetails);
+
+    const outputLine = `${pkgId} ${Math.round(discount)} ${Math.round(totalCost)}`;
+
+    packageOutput.push(outputLine);
+  }
+
+  return packageOutput;
+}
+
 module.exports = {
   calculateBaseCost,
-  calculateDeliveryDetails
+  calculateDeliveryDetails,
+  processInput
 };

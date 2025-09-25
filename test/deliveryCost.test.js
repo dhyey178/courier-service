@@ -39,4 +39,30 @@ describe('Delivery Details Calculation', () => {
     expect(result.discount).toBe(expectedDiscount);
     expect(result.totalCost).toBe(expectedTotalCost);
   });
+
+  test('should throw an error for non-numeric weight or distance', () => {
+    const packageDetails = {
+      baseCost: 100,
+      weight: 'invalid-weight',
+      distance: 50,
+      offerCode: 'OFR001'
+    };
+
+    expect(() => calculateDeliveryDetails(packageDetails)).toThrow(
+      'Invalid input: Weight and distance must be positive numbers.'
+    );
+  });
+
+  test('should throw an error for non-positive weight or distance', () => {
+      const packageDetails = {
+          baseCost: 100,
+          weight: -5,
+          distance: 50,
+          offerCode: 'OFR001'
+      };
+
+      expect(() => calculateDeliveryDetails(packageDetails)).toThrow(
+          'Invalid input: Weight and distance must be positive numbers.'
+      );
+  });
 });

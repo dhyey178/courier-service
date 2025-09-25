@@ -49,6 +49,10 @@ function validateOffer(packageDetails) {
 function calculateDeliveryDetails(packageDetails) {
   const { baseCost, weight, distance, offerCode } = packageDetails;
 
+  if (typeof weight !== 'number' || typeof distance !== 'number' || weight <= 0 || distance <= 0) {
+    throw new Error('Invalid input: Weight and distance must be positive numbers.');
+  }
+
   const totalBaseCost = calculateBaseCost(baseCost, weight, distance);
 
   const discountPercentage = validateOffer({ weight, distance, offerCode });

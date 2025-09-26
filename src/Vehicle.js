@@ -21,9 +21,11 @@ class Vehicle {
    * @returns {number} The time the vehicle will be available next.
    */
   calculateReturnTime(distance) {
-    // Implementation will follow later
-    return 0; 
+    const timeToDeliver = distance / this.maxSpeed;    
+    const roundTripTime = timeToDeliver * 2;
+    return this.availableTime + roundTripTime;
   }
+
 }
 
 module.exports = Vehicle;

@@ -86,4 +86,23 @@ describe('End-to-End Input Processing', () => {
     expect(actualOutput.success).toBe(false);
     expect(actualOutput.message).toBe('Invalid number of packages or missing package lines.');
   });
+  test('should return success:true with partial data and a message when packages are skipped', () => {
+    const inputLines = [
+      '100 5',
+      'PKG1 5 5 OFR001',
+      'PKG2 15',
+      'PKG3 invalid 100 OFR003',
+      'PKG4 50 -200 OFR001',
+      'PKG5 15 5',
+    ];
+
+    const expectedData = ['PKG1 0 175', 'PKG5 0 275'];
+
+    const result = processInput(inputLines);
+
+    expect(result.success).toBe(true);
+    expect(result.data.length).toBe(2);
+    expect(result.data).toEqual(expectedData);
+    expect(result.message).toContain('3 packages were skipped due to errors.');
+  });
 });

@@ -1,13 +1,5 @@
-/**
- * Calculates the delivery cost for a single package.
- * @param {number} baseCost The base cost of delivery.
- * @param {number} weight The package weight in kg.
- * @param {number} distance The distance to the destination in km.
- * @returns {number} The total delivery cost.
- */
-function calculateBaseCost(baseCost, weight, distance) {
-  return baseCost + (weight * 10) + (distance * 5);
-}
+const Package = require('./Package');
+const OfferStrategies = require('./offers');
 
 /**
  * Checks if an offer code is valid based on package details.
@@ -16,56 +8,16 @@ function calculateBaseCost(baseCost, weight, distance) {
  */
 function validateOffer(packageDetails) {
   const { weight, distance, offerCode } = packageDetails;
-
-  const offers = {
-    OFR001: {
-      discount: 0.1,
-      criteria: (weight, distance) => weight >= 70 && weight <= 200 && distance >= 0 && distance <= 200,
-    },
-    OFR002: {
-      discount: 0.07,
-      criteria: (weight, distance) => weight >= 10 && weight < 150 && distance >= 50 && distance <= 250,
-    },
-    OFR003: {
-      discount: 0.05,
-      criteria: (weight, distance) => weight >= 10 && weight <= 250 && distance >= 50 && distance <= 250,
-    },
-  };
-
-  const offer = offers[offerCode];
+  const offer = OfferStrategies[offerCode];
 
   if (offer && offer.criteria(weight, distance)) {
     return offer.discount;
   }
-
   return 0;
 }
 
 /**
- * Orchestrates the calculation of delivery details, including discounts.
- * @param {object} packageDetails - The package details including baseCost, weight, distance, and offerCode.
- * @returns {object} An object containing the final total cost and the applied discount amount.
- */
-function calculateDeliveryDetails(packageDetails) {
-  const { baseCost, weight, distance, offerCode } = packageDetails;
-
-  if (typeof weight !== 'number' || typeof distance !== 'number' || isNaN(weight) || isNaN(distance) || weight <= 0 || distance <= 0) {
-    throw new Error('Invalid input: Weight and distance must be positive numbers.');
-  }
-
-  const totalBaseCost = calculateBaseCost(baseCost, weight, distance);
-
-  const discountPercentage = validateOffer({ weight, distance, offerCode });
-
-  const discount = totalBaseCost * discountPercentage;
-
-  const totalCost = totalBaseCost - discount;
-
-  return { discount, totalCost };
-}
-
-/**
- * Parses input lines, calculates delivery costs for all packages, and formats the output.
+ * Parses input lines, creates Package objects, calculates costs, and formats the output.
  * @param {string[]} lines - An array of input strings from the command line.
  * @returns {object} { success: boolean, data: string[] | null, message: string | null, errorMessages: string[] | null }
  */
@@ -87,12 +39,13 @@ function processInput(lines) {
   }
 
   const packageOutput = [];
-  const errorMessages = []; 
+  const errorMessages = [];
+  const packageObjects = [];
 
   for (let i = 1; i <= numPackages; i++) {
     const line = lines[i];
     const tokens = line.trim().split(/\s+/); 
-    if (tokens.length < 3) {
+    if (tokens.length < 3) { 
       errorMessages.push(`Skipping package ${i}: Missing data. Line: "${line.trim()}"`);
       continue; 
     }
@@ -101,12 +54,13 @@ function processInput(lines) {
 
       const weight = parseFloat(weightStr);
       const distance = parseFloat(distanceStr);
-
-      const packageDetails = { pkgId, baseCost, weight, distance, offerCode };
-
-      const { discount, totalCost } = calculateDeliveryDetails(packageDetails);
-
-      const outputLine = `${pkgId} ${Math.round(discount)} ${Math.round(totalCost)}`;
+      
+      const packageObj = new Package(pkgId, weight, distance, offerCode, baseCost);
+      
+      packageObj.applyCostAndDiscount(validateOffer);
+      
+      packageObjects.push(packageObj);
+      const outputLine = `${packageObj.id} ${Math.round(packageObj.discount)} ${Math.round(packageObj.totalCost)}`;
       packageOutput.push(outputLine);
 
     } catch (error) {
@@ -125,8 +79,6 @@ function processInput(lines) {
 }
 
 module.exports = {
-  calculateBaseCost,
-  validateOffer,
-  calculateDeliveryDetails,
+  validateOffer, 
   processInput
 };

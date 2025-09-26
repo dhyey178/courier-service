@@ -9,7 +9,7 @@ describe('End-to-End Input Processing', () => {
       'PKG3 10 100 OFR003',
     ];
 
-    const expectedOutput = [
+    const expectedData  = [
       'PKG1 0 175',
       'PKG2 0 275',
       'PKG3 35 665',
@@ -17,22 +17,27 @@ describe('End-to-End Input Processing', () => {
 
     const actualOutput = processInput(inputLines);
 
-    expect(actualOutput).toEqual(expectedOutput);
+    expect(actualOutput.success).toBe(true);
+    expect(actualOutput.data).toEqual(expectedData);
   });
 
   test('should return an empty array if the input array is empty/null/undefined/no input', () => {
 
     let actualOutput = processInput([]);
-    expect(actualOutput).toEqual([]);
+    expect(actualOutput.success).toBe(false);
+    expect(actualOutput.message).toBe('No input lines provided.');
 
     actualOutput = processInput(null);
-    expect(actualOutput).toEqual([]);
+    expect(actualOutput.success).toBe(false);
+    expect(actualOutput.message).toBe('No input lines provided.');
 
     actualOutput = processInput(undefined);
-    expect(actualOutput).toEqual([]);
+    expect(actualOutput.success).toBe(false);
+    expect(actualOutput.message).toBe('No input lines provided.');
 
     actualOutput = processInput();
-    expect(actualOutput).toEqual([]);
+    expect(actualOutput.success).toBe(false);
+    expect(actualOutput.message).toBe('No input lines provided.');
 
   });
 });

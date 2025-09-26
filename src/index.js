@@ -76,14 +76,14 @@ function processInput(lines) {
 
   const [baseCostStr, numPackagesStr] = lines[0].trim().split(/\s+/);
   const baseCost = parseFloat(baseCostStr);
-  const numPackages = parseInt(numPackagesStr, 10);
+  const numPackages = parseFloat(numPackagesStr);
 
   if (isNaN(baseCost) || baseCost <= 0) {
     return { success: false, message: 'Invalid base delivery cost. Must be a positive number.' };
   }
 
-  if (isNaN(numPackages) || lines.length !== numPackages + 1) {
-    return { success: false, message: 'Invalid input format detected.' };
+  if (!Number.isInteger(numPackages) || lines.length !== numPackages + 1) {
+    return { success: false, message: 'Invalid number of packages or missing package lines.' };
   }
 
   const packageOutput = [];

@@ -67,11 +67,11 @@ function calculateDeliveryDetails(packageDetails) {
 /**
  * Parses input lines, calculates delivery costs for all packages, and formats the output.
  * @param {string[]} lines - An array of input strings from the command line.
- * @returns {string[]} An array of output strings in the format: "pkg_id discount total_cost"
+ * @returns {object} { success: boolean, data: string[] | null, message: string | null }
  */
 function processInput(lines) {
   if (!lines || lines.length === 0) {
-    return [];
+    return { success: false, message: 'No input lines provided.' };
   }
 
   const [baseCostStr, numPackagesStr] = lines[0].trim().split(/\s+/);
@@ -79,8 +79,7 @@ function processInput(lines) {
   const numPackages = parseInt(numPackagesStr, 10);
 
   if (isNaN(baseCost) || isNaN(numPackages) || lines.length !== numPackages + 1) {
-    console.error("Invalid input format detected.");
-    return [];
+    return { success: false, message: 'Invalid input format detected.' };
   }
 
   const packageOutput = [];
@@ -108,7 +107,10 @@ function processInput(lines) {
     packageOutput.push(outputLine);
   }
 
-  return packageOutput;
+  return { 
+    success: true, 
+    data: packageOutput,
+  };
 }
 
 module.exports = {

@@ -78,7 +78,11 @@ function processInput(lines) {
   const baseCost = parseFloat(baseCostStr);
   const numPackages = parseInt(numPackagesStr, 10);
 
-  if (isNaN(baseCost) || isNaN(numPackages) || lines.length !== numPackages + 1) {
+  if (isNaN(baseCost) || baseCost <= 0) {
+    return { success: false, message: 'Invalid base delivery cost. Must be a positive number.' };
+  }
+
+  if (isNaN(numPackages) || lines.length !== numPackages + 1) {
     return { success: false, message: 'Invalid input format detected.' };
   }
 

@@ -49,7 +49,7 @@ function validateOffer(packageDetails) {
 function calculateDeliveryDetails(packageDetails) {
   const { baseCost, weight, distance, offerCode } = packageDetails;
 
-  if (typeof weight !== 'number' || typeof distance !== 'number' || weight <= 0 || distance <= 0) {
+  if (typeof weight !== 'number' || typeof distance !== 'number' || isNaN(weight) || isNaN(distance) || weight <= 0 || distance <= 0) {
     throw new Error('Invalid input: Weight and distance must be positive numbers.');
   }
 
@@ -67,7 +67,7 @@ function calculateDeliveryDetails(packageDetails) {
 /**
  * Parses input lines, calculates delivery costs for all packages, and formats the output.
  * @param {string[]} lines - An array of input strings from the command line.
- * @returns {object} { success: boolean, data: string[] | null, message: string | null }
+ * @returns {object} { success: boolean, data: string[] | null, message: string | null, errorMessages: string[] | null }
  */
 function processInput(lines) {
   if (!lines || lines.length === 0) {
@@ -87,33 +87,40 @@ function processInput(lines) {
   }
 
   const packageOutput = [];
+  const errorMessages = []; 
 
   for (let i = 1; i <= numPackages; i++) {
     const line = lines[i];
+    const tokens = line.trim().split(/\s+/); 
+    if (tokens.length < 3) {
+      errorMessages.push(`Skipping package ${i}: Missing data. Line: "${line.trim()}"`);
+      continue; 
+    }
+    try {
+      const [pkgId, weightStr, distanceStr, offerCode] = tokens;
 
-    const [pkgId, weightStr, distanceStr, offerCode] = line.trim().split(/\s+/); 
+      const weight = parseFloat(weightStr);
+      const distance = parseFloat(distanceStr);
 
-    const weight = parseFloat(weightStr);
-    const distance = parseFloat(distanceStr);
+      const packageDetails = { pkgId, baseCost, weight, distance, offerCode };
 
-    const packageDetails = {
-      pkgId,
-      baseCost,
-      weight,
-      distance,
-      offerCode
-    };
+      const { discount, totalCost } = calculateDeliveryDetails(packageDetails);
 
-    const { discount, totalCost } = calculateDeliveryDetails(packageDetails);
+      const outputLine = `${pkgId} ${Math.round(discount)} ${Math.round(totalCost)}`;
+      packageOutput.push(outputLine);
 
-    const outputLine = `${pkgId} ${Math.round(discount)} ${Math.round(totalCost)}`;
+    } catch (error) {
+      errorMessages.push(`Skipping package ${tokens[0] || i}: ${error.message}`);
+    }
 
-    packageOutput.push(outputLine);
   }
-
   return { 
     success: true, 
     data: packageOutput,
+    message: errorMessages.length > 0 
+      ? `Processing complete. ${errorMessages.length} packages were skipped due to errors.`
+      : null,
+    errorMessages
   };
 }
 

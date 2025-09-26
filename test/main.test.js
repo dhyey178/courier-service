@@ -48,4 +48,42 @@ describe('End-to-End Input Processing', () => {
     expect(actualOutput.success).toBe(false);
     expect(actualOutput.message).toBe('Invalid base delivery cost. Must be a positive number.');
   });
+
+  test('should return success:false and error message if the package count is not a integer or does not match the input lines', () => {
+    let inputLines = [
+      '100 5',
+      'PKG1 5 5 OFR001',
+    ];
+
+    let actualOutput = processInput(inputLines);
+
+    expect(actualOutput.success).toBe(false);
+    expect(actualOutput.message).toBe('Invalid number of packages or missing package lines.');
+
+    inputLines = [
+      '100 invalid',
+      'PKG1 5 5 OFR001',
+      'PKG2 15 5 OFR002',
+      'PKG3 10 100 OFR003',
+      'PKG4 10 100 OFR003',
+    ];
+
+    actualOutput = processInput(inputLines);
+
+    expect(actualOutput.success).toBe(false);
+    expect(actualOutput.message).toBe('Invalid number of packages or missing package lines.');
+
+    inputLines = [
+      '100 3.5',
+      'PKG1 5 5 OFR001',
+      'PKG2 15 5 OFR002',
+      'PKG3 10 100 OFR003',
+      'PKG4 10 100 OFR003',
+    ];
+
+    actualOutput = processInput(inputLines);
+
+    expect(actualOutput.success).toBe(false);
+    expect(actualOutput.message).toBe('Invalid number of packages or missing package lines.');
+  });
 });

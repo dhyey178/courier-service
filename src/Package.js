@@ -12,6 +12,7 @@ class Package {
 
     this.discount = 0;
     this.totalCost = 0;
+    this.deliveryTime = null;
   }
 
   /**

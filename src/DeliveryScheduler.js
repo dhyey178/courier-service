@@ -64,7 +64,7 @@ class DeliveryScheduler {
    * @param {number} count - The number of packages to fit.
    * @returns {Package[][]} An array of trip candidates (arrays of Package objects) that have max weight.
    */
-  findMaxWeightGroups(sortedPackages, maxCount) {
+  findMaxWeightGroups(sortedPackages, count) {
     // Implementation to be added
     return [];
   }

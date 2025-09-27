@@ -40,8 +40,22 @@ class DeliveryScheduler {
    * @returns {number} The maximum count of packages possible in one trip.
    */
   getMaxCountPossible(sortedPackages) {
-    // Implementation to be added
-    return 0;
+    if (sortedPackages.length === 0) {
+      return 0;
+    }
+    const maxLoad = this.maxLoad;
+    let currentLoad = 0;
+    let maxCount = 0;
+
+    for (const pkg of sortedPackages) {
+      if(currentLoad + pkg.weight > maxLoad){
+        break;
+      }
+      currentLoad += pkg.weight;
+      maxCount++;
+    }
+
+    return maxCount;
   }
   
   /**

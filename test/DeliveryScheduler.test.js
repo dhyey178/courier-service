@@ -27,10 +27,10 @@ describe('DeliveryScheduler Priority 1: Max Package Count', () => {
     const scheduler = new DeliveryScheduler(1, 200, 70); 
 
     scheduler.pendingPackages = [
-      new MockPackage('P1', 100, 50),
-      new MockPackage('P2', 95, 50),
-      new MockPackage('P3', 90, 50),
-      new MockPackage('P4', 50, 50),
+      new Package('P1', 100, 50, '', 100),
+      new Package('P2', 95, 50, '', 100),
+      new Package('P3', 90, 50, '', 100),
+      new Package('P4', 50, 50, '', 100),
     ];
     scheduler.pendingPackages = scheduler.pendingPackages.sort((a, b) => a.weight - b.weight);
 
@@ -46,4 +46,25 @@ describe('DeliveryScheduler Priority 1: Max Package Count', () => {
     const totalWeight = tripCandidates[0].reduce((sum, p) => sum + p.weight, 0);
     expect(totalWeight).toBe(195);
   });
-});
+
+  test('should find the multiple group of size count that has the maximum possible weight', () => {
+    const scheduler = new DeliveryScheduler(1, 200, 70); 
+
+    scheduler.pendingPackages = [
+      new Package('P1', 125, 50, '', 100),
+      new Package('P2', 75, 50, '', 100),
+      new Package('P3', 110, 50, '', 100),
+      new Package('P4', 90, 50, '', 100),
+      new Package('P5', 50, 50, '', 100),
+    ];
+
+    scheduler.pendingPackages = scheduler.pendingPackages.sort((a, b) => a.weight - b.weight);
+
+    const maxCount = scheduler.getMaxCountPossible(scheduler.pendingPackages);
+    const tripCandidates = scheduler.findMaxWeightGroups(scheduler.pendingPackages, maxCount);
+    expect(tripCandidates.length).toBe(2);
+
+    expect(tripCandidates[0].reduce((sum, p) => sum + p.weight, 0)).toBe(200);
+    expect(tripCandidates[1].reduce((sum, p) => sum + p.weight, 0)).toBe(200);
+  });
+}); 

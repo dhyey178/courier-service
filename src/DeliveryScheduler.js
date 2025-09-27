@@ -66,7 +66,45 @@ class DeliveryScheduler {
    */
   findMaxWeightGroups(sortedPackages, count) {
     // Implementation to be added
-    return [];
+    const maxLoad = this.maxLoad; 
+    let maxFoundLoad = 0;
+    let highestWeightCombinations = [];
+    /**
+     * Recursive function using backtracking to find the maximum weight combinations.
+     * @param {number} startIdx - The starting index in the packages array.
+     * @param {number} remainingCount - The number of packages still needed.
+     * @param {Package[]} currentCombination - The packages selected so far.
+     * @param {number} currentLoad - The sum of weights in currentCombination.
+     */
+    function backtrack(startIdx, remainingCount, currentCombination, currentLoad) {
+      if (remainingCount === 0) {
+        if (currentLoad > maxFoundLoad) {
+          maxFoundLoad = currentLoad;
+          highestWeightCombinations = [
+            [...currentCombination]
+          ];
+        }
+        else if (currentLoad === maxFoundLoad) {
+          highestWeightCombinations.push([...currentCombination]);
+        }
+        return;
+      }
+      if (sortedPackages.length - startIdx < remainingCount) {
+        return;
+      }
+      for (let i = startIdx; i < sortedPackages.length; i++) {
+        const packageObj = sortedPackages[i];
+        const newLoad = currentLoad + packageObj.weight;
+        if (newLoad > maxLoad) {
+          break; 
+        }
+        currentCombination.push(packageObj);
+        backtrack(i + 1, remainingCount - 1, currentCombination, newLoad);
+        currentCombination.pop(); 
+      }
+    }
+    backtrack(0, count, [], 0);
+    return highestWeightCombinations;
   }
   
   /**

@@ -2,8 +2,6 @@ const DeliveryScheduler = require('../src/DeliveryScheduler');
 const Package = require('../src/Package')
 
 describe('DeliveryScheduler Priority 1: Max Package Count', () => {
-
-
   test('should return the maximum count of 5 packages for a weight sorted package array', () => {
     const scheduler = new DeliveryScheduler(1, 200, 70); 
 
@@ -25,7 +23,6 @@ describe('DeliveryScheduler Priority 1: Max Package Count', () => {
 });
 
 describe('DeliveryScheduler Priority 2: Maximize Total Weight', () => {
-
   test('should find the group of size count that has the maximum possible weight', () => {
     const scheduler = new DeliveryScheduler(1, 200, 70); 
 
@@ -89,4 +86,35 @@ describe('DeliveryScheduler Priority 3: Minimize Delivery Time (Min Distance)', 
     const maxDistance = finalTrip.reduce((max, p) => Math.max(max, p.distance), 0);
     expect(maxDistance).toBe(75); 
   })
+});
+
+describe('DeliveryScheduler State Management: Dispatch Trip', () => {
+  test('should correctly dispatch a trip, update vehicle time, and set package delivery times', () => {
+    const scheduler = new DeliveryScheduler(2, 200, 70); 
+
+    const v1 = scheduler.vehicles[0];
+    const v2 = scheduler.vehicles[1];
+    v1.availableTime = 10.0;
+
+    const tripPackages = [
+      new Package('P_A', 100, 50, '', 100),
+      new Package('P_B', 100, 100, '', 100),
+    ];
+
+    scheduler.pendingPackages = [...tripPackages, new Package('P_C', 50, 10, '', 100)]; 
+
+    scheduler.dispatchTripAndUpdateState(tripPackages);
+
+    const expectedDeliveryTime_PA = 50 / 70;
+    const expectedDeliveryTime_PB = 100 / 70;
+
+    expect(tripPackages[0].deliveryTime).toBeCloseTo(expectedDeliveryTime_PA, 4);
+    expect(tripPackages[1].deliveryTime).toBeCloseTo(expectedDeliveryTime_PB, 4);
+
+    expect(v1.availableTime).toBe(10.0);
+    expect(v2.availableTime).toBeCloseTo(expectedDeliveryTime_PB, 4);
+
+    expect(scheduler.pendingPackages.length).toBe(1);
+    expect(scheduler.pendingPackages[0].id).toBe('P_C');
+  });
 });

@@ -114,8 +114,25 @@ class DeliveryScheduler {
    * @returns {Package[]} The single optimal group of packages for the next trip.
    */
   selectBestTripByTime(tripCandidates) {
-    // Implementation to be added
-    return [];
+    if (!tripCandidates || tripCandidates.length === 0) {
+      return [];
+    }
+
+    let bestTrip = tripCandidates[0];
+    let minMaxDistance = bestTrip.reduce((max, p) => Math.max(max, p.distance), 0);
+  
+    for (let i = 1; i < tripCandidates.length; i++) {
+      const currentTrip = tripCandidates[i];
+  
+      const currentMaxDistance = currentTrip.reduce((max, p) => Math.max(max, p.distance), 0);
+  
+      if (currentMaxDistance < minMaxDistance) {
+        minMaxDistance = currentMaxDistance;
+        bestTrip = currentTrip;
+      }
+    }
+  
+    return bestTrip;
   }
   
   /**

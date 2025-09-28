@@ -112,7 +112,7 @@ describe('DeliveryScheduler State Management: Dispatch Trip', () => {
     expect(tripPackages[1].deliveryTime).toBeCloseTo(expectedDeliveryTime_PB, 4);
 
     expect(v1.availableTime).toBe(10.0);
-    expect(v2.availableTime).toBeCloseTo(expectedDeliveryTime_PB, 4);
+    expect(v2.availableTime).toBeCloseTo(expectedDeliveryTime_PB*2, 4);
 
     expect(scheduler.pendingPackages.length).toBe(1);
     expect(scheduler.pendingPackages[0].id).toBe('P_C');

@@ -141,7 +141,29 @@ class DeliveryScheduler {
    * @returns {void} Updates internal state (this.pendingPackages, vehicle.availableTime, package.deliveryTime).
    */
   dispatchTripAndUpdateState(tripPackages) {
-    // Implementation to be added
+    if (tripPackages.length === 0) {
+      return;
+    }
+    const vehicle = this.findNextAvailableVehicle();
+
+    const furthestDistance = tripPackages.reduce((max, p) => Math.max(max, p.distance), 0);
+
+    const oneWayTripTime = furthestDistance / vehicle.maxSpeed;
+
+    const tripStartTime = vehicle.availableTime;
+
+    tripPackages.forEach(pkg => {
+      const deliveryTime = pkg.distance / vehicle.maxSpeed;
+      pkg.deliveryTime = tripStartTime + deliveryTime;
+    });
+
+    const roundTripTime = oneWayTripTime * 2;
+    vehicle.availableTime = tripStartTime + roundTripTime;
+
+    const dispatchedIds = new Set(tripPackages.map(p => p.id));
+    this.pendingPackages = this.pendingPackages.filter(
+      pkg => !dispatchedIds.has(pkg.id)
+    );
   }
   
   /**
@@ -149,7 +171,8 @@ class DeliveryScheduler {
    * @returns {Vehicle} The Vehicle object available earliest.
    */
   findNextAvailableVehicle() {
-    // Implementation to be added
+    this.vehicles.sort((a, b) => a.availableTime - b.availableTime);
+    return this.vehicles[0];
   }
 }
 

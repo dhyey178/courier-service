@@ -118,3 +118,60 @@ describe('DeliveryScheduler State Management: Dispatch Trip', () => {
     expect(scheduler.pendingPackages[0].id).toBe('P_C');
   });
 });
+
+describe('DeliveryScheduler End-to-End: scheduleDeliveries Orchestration', () => {
+  test('should correctly schedule all packages according to multi-criteria rules and update delivery times', () => {
+    const scheduler = new DeliveryScheduler(2, 200, 70); 
+    const packages = [
+      new Package('PKG1', 50, 30, 'OFR001', 100),
+      new Package('PKG2', 75, 125, 'OFFR0008', 100),
+      new Package('PKG3', 175, 100, 'OFFR003', 100),
+      new Package('PKG4', 110, 60, 'OFFR002', 100),
+      new Package('PKG5', 155, 95, 'NA', 100),
+    ];
+    scheduler.scheduleDeliveries(packages);
+
+    const expectedPackageValues = {
+      'PKG1': {
+        discount: 0,
+        totalCost: 750,
+        deliveryTime: 3.98
+      },
+      'PKG2': {
+        discount: 0,
+        totalCost: 1475,
+        deliveryTime: 1.78
+      },
+      'PKG3': {
+        discount: 0,
+        totalCost: 2350,
+        deliveryTime: 1.42
+      },
+      'PKG4': {
+        discount: 105,
+        totalCost: 1395,
+        deliveryTime: 0.85
+      },
+      'PKG5': {
+        discount: 0,
+        totalCost: 2125,
+        deliveryTime: 4.19
+      }
+    };
+
+    packages.forEach(pkg => {
+      expect(pkg.discount).toBe(expectedPackageValues[pkg.id].discount)
+      expect(pkg.totalCost).toBe(expectedPackageValues[pkg.id].totalCost)
+      expect(pkg.deliveryTime).toBeCloseTo(expectedPackageValues[pkg.id].deliveryTime, 2);
+    });
+
+    expect(scheduler.pendingPackages.length).toBe(0); 
+
+    const v1 = scheduler.vehicles.find(v => v.id === 1);
+    const v2 = scheduler.vehicles.find(v => v.id === 2);
+
+    expect(v1.availableTime).toBeCloseTo(4.40, 2);
+    expect(v2.availableTime).toBeCloseTo(5.54, 2);
+
+  });
+});

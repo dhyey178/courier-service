@@ -119,6 +119,53 @@ describe('DeliveryScheduler State Management: Dispatch Trip', () => {
   });
 });
 
+describe('DeliveryScheduler Helper: filterOversizePackages', () => {
+  let scheduler;
+  const maxLoad = 200;
+
+  beforeEach(() => {
+    scheduler = new DeliveryScheduler(1, maxLoad, 70); 
+  });
+
+  test('should correctly filter out packages exceeding maxLoad and retain valid packages', () => {
+    const packages = [
+      new Package('P_A', 150, 50, '', 100),
+      new Package('P_B', 200, 50, '', 100),
+      new Package('P_C', 201, 50, '', 100),
+      new Package('P_D', 500, 50, '', 100),
+      new Package('P_E', 1, 50, '', 100),
+    ];
+
+    const filteredPackages = scheduler.filterOversizePackages(packages);
+
+    expect(filteredPackages.length).toBe(3); 
+
+    const retainedIds = filteredPackages.map(p => p.id).sort();
+    expect(retainedIds).toEqual(['P_A', 'P_B', 'P_E']);
+  });
+
+  test('should return an empty array if all packages are oversize', () => {
+    const packages = [
+      new Package('P_H', 250, 50, '', 100), 
+      new Package('P_I', 300, 50, '', 100)
+    ];
+
+    const filteredPackages = scheduler.filterOversizePackages(packages);
+    expect(filteredPackages.length).toBe(0);
+  });
+
+  test('should return the original array if no packages are oversize', () => {
+    const packages = [
+      new Package('P_S1', 10, 50, '', 100), 
+      new Package('P_S2', 200, 50, '', 100)
+    ];
+
+    const filteredPackages = scheduler.filterOversizePackages(packages);
+    expect(filteredPackages.length).toBe(2);
+  });
+});
+
+
 describe('DeliveryScheduler End-to-End: scheduleDeliveries Orchestration', () => {
   test('should correctly schedule all packages according to multi-criteria rules and update delivery times', () => {
     const scheduler = new DeliveryScheduler(2, 200, 70); 

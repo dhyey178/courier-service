@@ -21,6 +21,7 @@ class DeliveryScheduler {
     this.maxLoad = maxLoad;
     this.maxSpeed = maxSpeed;
     this.numVehicles = numVehicles;
+    this.overSizePackages = [];
   }
 
   /**
@@ -32,7 +33,8 @@ class DeliveryScheduler {
     packages.forEach(pkg => {
       pkg.applyCostAndDiscount(validateOffer)
     })
-    this.pendingPackages = [...packages]; 
+    this.pendingPackages = [...packages];
+    this.pendingPackages = this.filterOversizePackages(this.pendingPackages)
     this.pendingPackages = this.pendingPackages.sort((a, b) => a.weight - b.weight);
   
     while (this.pendingPackages.length > 0) {
@@ -185,6 +187,17 @@ class DeliveryScheduler {
   findNextAvailableVehicle() {
     this.vehicles.sort((a, b) => a.availableTime - b.availableTime);
     return this.vehicles[0];
+  }
+
+  /**
+   * Helper to remove packages that exceed the maximum load.
+   * These packages can never be delivered.
+   * @param {Package[]} packages - The array of all packages.
+   * @returns {Package[]} The array of deliverable packages.
+   */
+  filterOversizePackages(packages) {
+    this.overSizePackages = packages.filter(pkg => pkg.weight > this.maxLoad);
+    return packages.filter(pkg => pkg.weight <= this.maxLoad);
   }
 }
 

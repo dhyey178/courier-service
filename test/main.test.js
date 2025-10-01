@@ -7,12 +7,13 @@ describe('End-to-End Input Processing', () => {
       'PKG1 5 5 OFR001',
       'PKG2 15 5 OFR002',
       'PKG3 10 100 OFR003',
+      '1 100 200',
     ];
 
     const expectedData  = [
-      'PKG1 0 175',
-      'PKG2 0 275',
-      'PKG3 35 665',
+      'PKG1 0 175 0.05',
+      'PKG2 0 275 0.05',
+      'PKG3 35 665 1',
     ];
 
     const actualOutput = processInput(inputLines);
@@ -24,27 +25,27 @@ describe('End-to-End Input Processing', () => {
   test('should return an success:false and message if the input array is empty/null/undefined/no input', () => {
     let actualOutput = processInput([]);
     expect(actualOutput.success).toBe(false);
-    expect(actualOutput.message).toBe('No input lines provided.');
+    expect(actualOutput.message).toBe('No input lines provided or insufficient data.');
 
     actualOutput = processInput(null);
     expect(actualOutput.success).toBe(false);
-    expect(actualOutput.message).toBe('No input lines provided.');
+    expect(actualOutput.message).toBe('No input lines provided or insufficient data.');
 
     actualOutput = processInput(undefined);
     expect(actualOutput.success).toBe(false);
-    expect(actualOutput.message).toBe('No input lines provided.');
+    expect(actualOutput.message).toBe('No input lines provided or insufficient data.');
 
     actualOutput = processInput();
     expect(actualOutput.success).toBe(false);
-    expect(actualOutput.message).toBe('No input lines provided.');
+    expect(actualOutput.message).toBe('No input lines provided or insufficient data.');
   });
 
   test('should return success:false and error message if baseCost is non-positive or non-numeric', () => {
-    let actualOutput = processInput(['invalid 3', 'PKG1 5 5 OFR001']);
+    let actualOutput = processInput(['invalid 3', 'PKG1 5 5 OFR001', '2 70 200']);
     expect(actualOutput.success).toBe(false);
     expect(actualOutput.message).toBe('Invalid base delivery cost. Must be a positive number.');
 
-    actualOutput = processInput(['0 3', 'PKG1 5 5 OFR001']);
+    actualOutput = processInput(['0 3', 'PKG1 5 5 OFR001', '2 70 200']);
     expect(actualOutput.success).toBe(false);
     expect(actualOutput.message).toBe('Invalid base delivery cost. Must be a positive number.');
   });
@@ -53,6 +54,7 @@ describe('End-to-End Input Processing', () => {
     let inputLines = [
       '100 5',
       'PKG1 5 5 OFR001',
+      '2 70 200',
     ];
 
     let actualOutput = processInput(inputLines);
@@ -66,6 +68,7 @@ describe('End-to-End Input Processing', () => {
       'PKG2 15 5 OFR002',
       'PKG3 10 100 OFR003',
       'PKG4 10 100 OFR003',
+      '2 70 200'
     ];
 
     actualOutput = processInput(inputLines);
@@ -79,6 +82,7 @@ describe('End-to-End Input Processing', () => {
       'PKG2 15 5 OFR002',
       'PKG3 10 100 OFR003',
       'PKG4 10 100 OFR003',
+      '2 70 200',
     ];
 
     actualOutput = processInput(inputLines);
@@ -94,9 +98,10 @@ describe('End-to-End Input Processing', () => {
       'PKG3 invalid 100 OFR003',
       'PKG4 50 -200 OFR001',
       'PKG5 15 5',
+      '2 100 200',
     ];
 
-    const expectedData = ['PKG1 0 175', 'PKG5 0 275'];
+    const expectedData = ['PKG1 0 175 0.05', 'PKG5 0 275 0.05'];
 
     const result = processInput(inputLines);
 

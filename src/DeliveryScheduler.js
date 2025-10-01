@@ -1,6 +1,5 @@
 
 const Vehicle = require('./Vehicle');
-const { validateOffer } = require('../src/index'); 
 /**
  * Manages the assignment of packages to vehicles and calculates delivery times,
  * following the multi-criteria loading and scheduling strategy.
@@ -22,6 +21,7 @@ class DeliveryScheduler {
     this.maxSpeed = maxSpeed;
     this.numVehicles = numVehicles;
     this.overSizePackages = [];
+    this.errorMessages = []
   }
 
   /**
@@ -29,11 +29,15 @@ class DeliveryScheduler {
    * @param {Package[]} packages - The list of all Package objects.
    * @returns {void} Updates the deliveryTime property on the Package objects directly.
    */
-  scheduleDeliveries(packages) {
+  scheduleDeliveries(packages, validateOffer) {
     packages.forEach(pkg => {
-      pkg.applyCostAndDiscount(validateOffer)
+      try {
+        pkg.applyCostAndDiscount(validateOffer)
+        this.pendingPackages.push(pkg)
+      } catch(error) {
+        this.errorMessages.push(`Skipping package ${pkg.id}: ${error.message}`);
+      }
     })
-    this.pendingPackages = [...packages];
     this.pendingPackages = this.filterOversizePackages(this.pendingPackages)
     this.pendingPackages = this.pendingPackages.sort((a, b) => a.weight - b.weight);
   

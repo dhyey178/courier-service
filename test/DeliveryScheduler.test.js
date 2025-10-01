@@ -1,5 +1,6 @@
 const DeliveryScheduler = require('../src/DeliveryScheduler');
 const Package = require('../src/Package')
+const { validateOffer } = require('../src/index')
 
 describe('DeliveryScheduler Priority 1: Max Package Count', () => {
   test('should return the maximum count of 5 packages for a weight sorted package array', () => {
@@ -176,7 +177,7 @@ describe('DeliveryScheduler End-to-End: scheduleDeliveries Orchestration', () =>
       new Package('PKG4', 110, 60, 'OFR002', 100),
       new Package('PKG5', 155, 95, 'NA', 100),
     ];
-    scheduler.scheduleDeliveries(packages);
+    scheduler.scheduleDeliveries(packages, validateOffer);
 
     const expectedPackageValues = {
       'PKG1': {

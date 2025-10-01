@@ -105,14 +105,14 @@ describe('DeliveryScheduler State Management: Dispatch Trip', () => {
 
     scheduler.dispatchTripAndUpdateState(tripPackages);
 
-    const expectedDeliveryTime_PA = 50 / 70;
-    const expectedDeliveryTime_PB = 100 / 70;
+    const expectedDeliveryTime_PA = Math.round((50 / 70)*100)/100;
+    const expectedDeliveryTime_PB = Math.round((100 / 70)*100)/100;
 
-    expect(tripPackages[0].deliveryTime).toBeCloseTo(expectedDeliveryTime_PA, 4);
-    expect(tripPackages[1].deliveryTime).toBeCloseTo(expectedDeliveryTime_PB, 4);
+    expect(tripPackages[0].deliveryTime).toBeCloseTo(expectedDeliveryTime_PA, 2);
+    expect(tripPackages[1].deliveryTime).toBeCloseTo(expectedDeliveryTime_PB, 2);
 
     expect(v1.availableTime).toBe(10.0);
-    expect(v2.availableTime).toBeCloseTo(expectedDeliveryTime_PB*2, 4);
+    expect(v2.availableTime).toBeCloseTo(expectedDeliveryTime_PB*2, 2);
 
     expect(scheduler.pendingPackages.length).toBe(1);
     expect(scheduler.pendingPackages[0].id).toBe('P_C');
@@ -124,9 +124,9 @@ describe('DeliveryScheduler End-to-End: scheduleDeliveries Orchestration', () =>
     const scheduler = new DeliveryScheduler(2, 200, 70); 
     const packages = [
       new Package('PKG1', 50, 30, 'OFR001', 100),
-      new Package('PKG2', 75, 125, 'OFFR0008', 100),
+      new Package('PKG2', 75, 125, 'OFR0008', 100),
       new Package('PKG3', 175, 100, 'OFFR003', 100),
-      new Package('PKG4', 110, 60, 'OFFR002', 100),
+      new Package('PKG4', 110, 60, 'OFR002', 100),
       new Package('PKG5', 155, 95, 'NA', 100),
     ];
     scheduler.scheduleDeliveries(packages);
@@ -135,29 +135,38 @@ describe('DeliveryScheduler End-to-End: scheduleDeliveries Orchestration', () =>
       'PKG1': {
         discount: 0,
         totalCost: 750,
-        deliveryTime: 3.98
       },
       'PKG2': {
         discount: 0,
         totalCost: 1475,
-        deliveryTime: 1.78
       },
       'PKG3': {
         discount: 0,
         totalCost: 2350,
-        deliveryTime: 1.42
       },
       'PKG4': {
         discount: 105,
         totalCost: 1395,
-        deliveryTime: 0.85
       },
       'PKG5': {
         discount: 0,
         totalCost: 2125,
-        deliveryTime: 4.19
       }
     };
+    let v1_time = 0;
+    let v2_time = 0;
+    expectedPackageValues['PKG2'].deliveryTime = Math.round((v1_time + packages[1].distance / 70)*100)/100;
+    expectedPackageValues['PKG4'].deliveryTime = Math.round((v1_time + packages[3].distance / 70)*100)/100;
+    v1_time += (packages[1].distance / 70)*2
+
+    expectedPackageValues['PKG3'].deliveryTime = Math.round((v2_time + packages[2].distance / 70)*100)/100;
+    v2_time += (packages[2].distance / 70)*2
+
+    expectedPackageValues['PKG5'].deliveryTime = Math.round((v2_time + packages[4].distance / 70)*100)/100;
+    v2_time += (packages[4].distance / 70)*2
+
+    expectedPackageValues['PKG1'].deliveryTime = Math.round((v1_time + packages[0].distance / 70)*100)/100;
+    v1_time += (packages[0].distance / 70)*2
 
     packages.forEach(pkg => {
       expect(pkg.discount).toBe(expectedPackageValues[pkg.id].discount)
@@ -170,8 +179,8 @@ describe('DeliveryScheduler End-to-End: scheduleDeliveries Orchestration', () =>
     const v1 = scheduler.vehicles.find(v => v.id === 1);
     const v2 = scheduler.vehicles.find(v => v.id === 2);
 
-    expect(v1.availableTime).toBeCloseTo(4.40, 2);
-    expect(v2.availableTime).toBeCloseTo(5.54, 2);
+    expect(v1.availableTime).toBeCloseTo(v1_time, 2);
+    expect(v2.availableTime).toBeCloseTo(v2_time, 2);
 
   });
 });

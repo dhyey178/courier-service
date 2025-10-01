@@ -1,6 +1,6 @@
-const Vehicle = require('./Vehicle');
-// Assuming Package is imported if needed in helper functions
 
+const Vehicle = require('./Vehicle');
+const { validateOffer } = require('../src/index'); 
 /**
  * Manages the assignment of packages to vehicles and calculates delivery times,
  * following the multi-criteria loading and scheduling strategy.
@@ -17,7 +17,6 @@ class DeliveryScheduler {
       this.vehicles.push(new Vehicle(i, maxLoad, maxSpeed));
     }
 
-    // Stores packages that still need to be delivered (will be constantly updated/sorted)
     this.pendingPackages = [];
     this.maxLoad = maxLoad;
     this.maxSpeed = maxSpeed;
@@ -30,7 +29,21 @@ class DeliveryScheduler {
    * @returns {void} Updates the deliveryTime property on the Package objects directly.
    */
   scheduleDeliveries(packages) {
-    // Implementation to be added
+    packages.forEach(pkg => {
+      pkg.applyCostAndDiscount(validateOffer)
+    })
+    this.pendingPackages = [...packages]; 
+    this.pendingPackages = this.pendingPackages.sort((a, b) => a.weight - b.weight);
+  
+    while (this.pendingPackages.length > 0) {
+      const maxCount = this.getMaxCountPossible(this.pendingPackages);
+  
+      let bestTripCandidates = this.findMaxWeightGroups(this.pendingPackages, maxCount);
+  
+      const finalTripPackages = this.selectBestTripByTime(bestTripCandidates);
+
+      this.dispatchTripAndUpdateState(finalTripPackages);
+    }
   }
   
   /**
@@ -65,7 +78,6 @@ class DeliveryScheduler {
    * @returns {Package[][]} An array of trip candidates (arrays of Package objects) that have max weight.
    */
   findMaxWeightGroups(sortedPackages, count) {
-    // Implementation to be added
     const maxLoad = this.maxLoad; 
     let maxFoundLoad = 0;
     let highestWeightCombinations = [];
@@ -154,7 +166,7 @@ class DeliveryScheduler {
 
     tripPackages.forEach(pkg => {
       const deliveryTime = pkg.distance / vehicle.maxSpeed;
-      pkg.deliveryTime = tripStartTime + deliveryTime;
+      pkg.deliveryTime = Math.round((tripStartTime + deliveryTime)*100)/100;
     });
 
     const roundTripTime = oneWayTripTime * 2;

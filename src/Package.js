@@ -44,7 +44,7 @@ class Package {
       offerCode: this.offerCode
     });
 
-    this.discount = totalBaseCost * discountPercentage;
+    this.discount = Math.round(totalBaseCost * discountPercentage);
     this.totalCost = totalBaseCost - this.discount;
   }
 }

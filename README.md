@@ -1,4 +1,4 @@
-# 🚚 ** Courier Delivery Cost & Time Estimator **
+# 🚚 **Courier Delivery Cost & Time Estimator**
 ## Overview
 This project provides a robust solution for the Courier Delivery Logistics challenge. It is a command-line interface (CLI) application designed to perform two core functions:
 
@@ -32,18 +32,25 @@ Here is the revised README template incorporating your assumptions, followed by 
 The following assumptions were made regarding the input, output, and delivery model:
 
 ### Input & Data Assumptions
+
 Optional Offer Code	If the OFFER_CODE column is empty, no discount is applied, and the package is processed normally.
+
 Input Spacing	Multiple spaces between input tokens (e.g., PKG1  50 30) are treated as a single delimiter and do not affect parsing.
+
 Empty/Invalid Lines	Empty lines in the input file will be ignored. Invalid package lines are skipped, with an error message logged, allowing valid packages to proceed.
+
 Input Validation (Numerics)	baseCost, weight, distance, numVehicles, maxSpeed, and maxLoad must be positive numbers (i.e., >0). NO_OF_PACKAGES and NO_OF_VEHICLES must be integers greater than 0.
 
-Export to Sheets
-Scheduling & Delivery Model Assumptions
-Assumption	Justification
+### Scheduling & Delivery Model Assumptions
+
 Delivery Time Rounding	The final DELIVERY_TIME is rounded to 2 decimal places for display purposes only. All intermediate time and distance calculations use floating-point precision. (This causes slight variance in the output shown in the Problem Statement)
+
 Delivery Route	All packages in a single trip are delivered sequentially, and the delivery vehicle returns to the hub only after all packages in that trip are delivered.
+
 Trip Distance (RTD)	The return trip distance is 2× (Maximum Distance of any package in the trip).
+
 Load Weight	Package weight is fixed and does not decrease after delivery. The total load capacity check is performed only at the start of the trip.
+
 Delivery Strategy	The optimal loading strategy focuses only on the three explicit criteria (↑ Count →↑ Weight →↓ Distance). Any further tie-breaking (e.g., package ID order) simply selects the first candidate found.
 
 ## 🛠️ Tech Stack
@@ -76,9 +83,9 @@ Input Format
 The input must consist of the following lines, in order:
 
 Line(s)	Format	Description
-1	** BASE_COST NO_OF_PACKAGES **:	Base delivery cost and total number of packages.
-2 to N	** PKG_ID WEIGHT_KG DISTANCE_KM OFFER_CODE **:	Details for each package.
-N+1	** NO_OF_VEHICLES MAX_SPEED MAX_LOAD **:	Vehicle parameters (required for scheduling).
+1	**BASE_COST NO_OF_PACKAGES**:	Base delivery cost and total number of packages.
+2 to N	**PKG_ID WEIGHT_KG DISTANCE_KM OFFER_CODE**:	Details for each package.
+N+1	**NO_OF_VEHICLES MAX_SPEED MAX_LOAD**:	Vehicle parameters (required for scheduling).
 
 Example Input 
 ```
@@ -100,7 +107,7 @@ Output Format
 The application outputs a list of processed packages, sorted by input order, , with the final four calculated values:
 
 
-** PKG_ID DISCOUNT TOTAL_COST DELIVERY_TIME **
+**PKG_ID DISCOUNT TOTAL_COST DELIVERY_TIME**
 Example Output:
 
 ```
